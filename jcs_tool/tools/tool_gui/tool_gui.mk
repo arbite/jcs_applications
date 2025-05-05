@@ -19,6 +19,7 @@ JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_brake_clutch.
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_analog.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_load_switch.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_thermal_simple.o
+JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_imu.o
 
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_process/gui_process_pid.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_process/gui_process_pd.o
@@ -58,6 +59,7 @@ JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/gui_ic
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/icmu_calibration_core.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/icmu_calibrate_hand.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/icmu_calibrate_driven.o
+JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_imu_sensor_log/gui_imu_sensor_log.o
 
 # Hoppy robot
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_fun/2d_hopper/gui_host_2d_hopper.o
@@ -81,6 +83,7 @@ DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_brake_clutch.o
 DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_analog.o
 DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_load_switch.o
 DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_thermal_simple.o
+DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_imu.o
 
 DEV_HOST_SRC += build/parameter_helpers/process/jcs_proc_pid.o
 DEV_HOST_SRC += build/parameter_helpers/process/jcs_proc_pd.o
@@ -133,6 +136,7 @@ JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_tools/gui_mc_thermal_
 JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_tools/gui_bc_tune/
 JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/
 JCS_TOOL_GUI_INC += -I$(3RD_PARTY_PATH)/icmu/
+JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_tools/gui_imu_sensor_log/
 
 JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_fun/2d_hopper/
 

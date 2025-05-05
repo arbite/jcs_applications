@@ -22,6 +22,7 @@
 #include "gui_device_analog.h"
 #include "gui_device_load_switch.h"
 #include "gui_device_thermal_simple.h"
+#include "gui_device_imu.h"
 
 #include "gui_process_pid.h"
 #include "gui_process_pd.h"
@@ -184,6 +185,7 @@ void tool_gui::build_store() {
         else if (device_tree_->at(i).node_type == "dev_analog")                          { store_.push_back(new gui_device_analog(host_, gui_if, device_tree_->at(i).name)); }
         else if (device_tree_->at(i).node_type == "dev_load_switch")                     { store_.push_back(new gui_device_load_switch(host_, gui_if, device_tree_->at(i).name)); }
         else if (device_tree_->at(i).node_type == "dev_thermal_simple")                  { store_.push_back(new gui_device_thermal_simple(host_, gui_if, device_tree_->at(i).name)); }
+        else if (device_tree_->at(i).node_type == "dev_imu")                             { store_.push_back(new gui_device_imu(host_, gui_if, device_tree_->at(i).name)); }
         // Nothing to do
         else { }
 
