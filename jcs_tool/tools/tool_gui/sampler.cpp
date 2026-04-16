@@ -7,19 +7,19 @@
 #include <iomanip>
 #include "ImGuiFileDialog.h"
 
-sampler::sampler(int const base_frequency_hz, std::vector<std::string>* output_signal_names, int const n_channels, int const inital_sample_rate_hz, int const initial_sample_time_s, std::vector<std::string>* channel_labels) :
+sampler::sampler(int const base_frequency_hz, std::vector<std::string>* output_signal_names, int const n_channels, int const initial_sample_rate_hz, int const initial_sample_time_s, std::vector<std::string>* channel_labels) :
     base_frequency_hz_(base_frequency_hz),
     f32_output_signal_names_(output_signal_names),
+    channel_labels_(channel_labels),
     state_(sampler_state::off_s),
-    sample_rate_hz_(inital_sample_rate_hz),
-    storage_length_(1000),
-    sample_time_s_(initial_sample_time_s)
+    sample_rate_hz_(initial_sample_rate_hz),
+    sample_time_s_(initial_sample_time_s),
+    storage_length_( initial_sample_rate_hz * initial_sample_time_s)
 {
-    channel_labels_ = channel_labels;
     // Channels NOT initialised here. We need true dt
     // however - size the vector
     channels_.resize(n_channels);
-    if (inital_sample_rate_hz == base_frequency_hz) {
+    if (initial_sample_rate_hz == base_frequency_hz) {
         using_filter_ = false;
     } else {
         using_filter_ = true;
@@ -48,13 +48,12 @@ int sampler::startup(double time_now_ns) {
                                    static_cast<double>(base_frequency_hz_),
                                    sample_rate_hz_);
     }
-
     // Configure the sampler
     if (sampler_reconfigure() != jcs::RET_OK) {
         return jcs::RET_ERROR;
     }
     // Start the channels
-    channels_startup(false, storage_length_, sample_rate_hz_);
+    channels_startup(false);
 
     t_start_ns_ = time_now_ns;
 
@@ -171,7 +170,7 @@ int sampler::sampler_reconfigure() {
     sample_tick_ = 0;
     // Compute storage length
     storage_length_ = sample_rate_hz_ * sample_time_s_;
-    channels_compute(storage_length_, sample_rate_hz_);
+    channels_compute();
     return jcs::RET_OK;
 }
 
@@ -185,7 +184,7 @@ sampler::channel::channel(std::string const& name, std::string const& source, in
     filter_(sample_rate_hz/2.0, 1.0/base_freq_hz),
     plot_cursors_(false),
     fit_y_(true), fit_x_(true),
-    span_s_(sample_rate_hz * storage_length)
+    span_s_(0.0)
 {
     for (int c=0; c<4; c++) {
         cursor_tag_[c] = 0.0;
@@ -304,9 +303,7 @@ void sampler::channel::plot() {
     ImGui::PopID();
 }
 
-void sampler::channels_startup(bool use_first_source, int storage_length, int sample_rate_hz) {
-    double cutoff_hz = (double)sample_rate_hz / 2.0;
-
+void sampler::channels_startup(bool use_first_source) {
     for (int i=0; i<channels_.size(); i++) {
         if (use_first_source) {
             channels_[i]->source_ = f32_output_signal_names_->at(0);
@@ -318,14 +315,14 @@ void sampler::channels_startup(bool use_first_source, int storage_length, int sa
             channels_[i]->source_combo_index_ = source_idx;
         }
     }
-    channels_compute(storage_length, sample_rate_hz);
+    channels_compute();
 }
-void sampler::channels_compute(int storage_length, int sample_rate_hz) {
-    double cutoff_hz = (double)sample_rate_hz / 2.0;
+void sampler::channels_compute() {
+    double cutoff_hz = (double)sample_rate_hz_ / 2.0;
     for (int i=0; i<channels_.size(); i++) {
-        channels_[i]->span_s_ = sample_rate_hz * storage_length;
+        channels_[i]->span_s_ = sample_time_s_;
         channels_[i]->filter_.cutoff_set(cutoff_hz);
-        channels_[i]->buffer_.update_size(storage_length);
+        channels_[i]->buffer_.update_size(storage_length_);
     }
 }
 void sampler::channels_clear() {

@@ -16,7 +16,7 @@ class sampler {
 public:
     sampler(int const base_frequency_hz,
         std::vector<std::string>* output_signal_names, int const n_channels,
-        int const inital_sample_rate_hz, int const initial_sample_time_s,
+        int const initial_sample_rate_hz, int const initial_sample_time_s,
         std::vector<std::string>* channel_labels = nullptr);
     ~sampler();
 
@@ -56,9 +56,8 @@ private:
     int sample_rate_hz_;
     int sample_tick_max_;
     int sample_tick_;
-    int storage_length_;
-
     int sample_time_s_;
+    int storage_length_;
 
     double t_start_ns_;
 
@@ -79,8 +78,7 @@ private:
         double cursor_tag_[4];
         float t_centre_;
         float y_centre_;
-
-        int span_s_;
+        double span_s_;
 
         channel(std::string const& name, std::string const& source, int storage_length, double base_freq_hz, int sample_rate_hz);
         void plot();
@@ -88,15 +86,15 @@ private:
     std::vector<channel*> channels_;
     bool using_filter_;
 
-    void channels_startup(bool use_first_source, int storage_length, int sample_rate_hz);
+    void channels_startup(bool use_first_source);
     void channels_set_signals_size(int size);
-    void channels_compute(int storage_length, int sample_rate_hz);
+    void channels_compute();
     void channels_clear();
     void channels_seed_filter(std::vector<float>* input);
     void channels_step_filter(std::vector<float>* input);
     void channels_sample(float time_s);
     void channels_render_select_source();
-    int emit_data(std::string const& path_and_file) ;
+    int emit_data(std::string const& path_and_file);
 };
 
 #endif
