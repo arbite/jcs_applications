@@ -251,25 +251,26 @@ void param_float32_vec::render(std::string const& target_device) {
     ImGui::TableNextColumn();
     ImGui::SetNextItemWidth(-FLT_MIN);
     // If the vector is small enough, display the elements, otherwise open a popup to display them
-    if (read_val_.size() <= 4) {
-        if (read_val_.size() == 1) { ImGui::Text("%.6f", read_val_[0]); }
-        if (read_val_.size() == 2) { ImGui::Text("%.4f, %.4f", read_val_[0], read_val_[1]); }
-        if (read_val_.size() == 3) { ImGui::Text("%.4f, %.4f, %.4f", read_val_[0], read_val_[1], read_val_[2]); }
-        if (read_val_.size() == 4) { ImGui::Text("%.3f, %.3f, %.3f, %.3f", read_val_[0], read_val_[1], read_val_[2], read_val_[3]); }
-    } else {
-        if (ImGui::BeginPopupContextItem("float_output")) {
-            ImGui::Text("Vector values:");
-            for (int i=0; i<read_val_.size(); i++) {
-                ImGui::PushID(i);
-                ImGui::Text("Element: %u, %4.4f", i, read_val_[i]);
-                ImGui::PopID();
+    switch (read_val_.size()) {
+        case 1: ImGui::Text("%.6f", read_val_[0]); break;
+        case 2: ImGui::Text("%.4f, %.4f", read_val_[0], read_val_[1]); break;
+        case 3: ImGui::Text("%.4f, %.4f, %.4f", read_val_[0], read_val_[1], read_val_[2]); break;
+        case 4: ImGui::Text("%.3f, %.3f, %.3f, %.3f", read_val_[0], read_val_[1], read_val_[2], read_val_[3]); break;
+        default:
+            if (ImGui::BeginPopupContextItem("float_output")) {
+                ImGui::Text("Vector values:");
+                for (int i=0; i<read_val_.size(); i++) {
+                    ImGui::PushID(i);
+                    ImGui::Text("Element: %u, %4.4f", i, read_val_[i]);
+                    ImGui::PopID();
+                }
+                ImGui::EndPopup();
             }
-            ImGui::EndPopup();
-        }
-        ImGui::SetNextItemWidth(-FLT_MIN);
-        if (ImGui::Button("Read vector values")) {
-            ImGui::OpenPopup("float_output");
-        }
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            if (ImGui::Button("Read vector values")) {
+                ImGui::OpenPopup("float_output");
+            }
+            break;
     }
 
     ImGui::PopID();
@@ -369,6 +370,113 @@ void param_uint32::write_to_file(YAML::Emitter& yemit) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+param_uint32_vec::param_uint32_vec(jcs::jcs_host* host, std::string const& name, int length) :
+    param_base(host, name, length)
+{
+    write_val_.resize(length);
+    read_val_.resize(length);
+}
+void param_uint32_vec::render(std::string const& target_device) {
+    ImGui::PushID((target_device + name_).c_str());
+
+    ImGui::TableNextColumn();
+    ImGui::TextUnformatted(name_.c_str());
+
+    ImGui::TableNextColumn();
+    ImGui::Text("uint32 vec");
+
+    ImGui::TableNextColumn();
+    ImGui::Text("%u", length_);
+
+    // Write
+    ImGui::TableNextColumn();
+    std::string fail_text = "Parameter failed " + name_;
+
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    if (ImGui::BeginPopupContextItem("uint32_input")) {
+        char buf[64];
+        ImGui::Text("Vector values:");
+        for (int i=0; i<write_val_.size(); i++) {
+            ImGui::PushID(i);
+            sprintf(buf, "Element: %u", i);
+            int tmp = (int)write_val_[i];
+            if (ImGui::DragInt(buf, &tmp, 1.0f, 0, 0)) {
+                write_val_[i] = (uint32_t)tmp;
+            }
+            ImGui::PopID();
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    if (ImGui::Button("Set vector values")) {
+        ImGui::OpenPopup("uint32_input");
+    }
+
+    ImGui::TableNextColumn();
+    if (ImGui::Button("Write", ImVec2(-FLT_MIN, 0.0f))) {
+        PARAM_NOTIFY( host_->write_uint32(target_device, name_, write_val_), fail_text )
+    }
+
+    ImGui::TableNextColumn();
+    if (ImGui::Button("Read", ImVec2(-FLT_MIN, 0.0f))) {
+        PARAM_NOTIFY( host_->read_uint32(target_device, name_, &read_val_), fail_text )
+    }
+
+    // Watch
+    ImGui::TableNextColumn();
+    if (read_val_.size() <= 4) {
+        ImGui::Checkbox("##watch", &watch_);
+        if (watch_) {
+            read(target_device);
+        }
+    }
+
+    ImGui::TableNextColumn();
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    switch (read_val_.size()) {
+        case 1: ImGui::Text("%u", read_val_[0]); break;
+        case 2: ImGui::Text("%u, %u", read_val_[0], read_val_[1]); break;
+        case 3: ImGui::Text("%u, %u, %u", read_val_[0], read_val_[1], read_val_[2]); break;
+        case 4: ImGui::Text("%u, %u, %u, %u", read_val_[0], read_val_[1], read_val_[2], read_val_[3]); break;
+        default:
+            if (ImGui::BeginPopupContextItem("uint32_output")) {
+                ImGui::Text("Vector values:");
+                for (int i=0; i<read_val_.size(); i++) {
+                    ImGui::PushID(i);
+                    ImGui::Text("Element: %u, %u", i, read_val_[i]);
+                    ImGui::PopID();
+                }
+                ImGui::EndPopup();
+            }
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            if (ImGui::Button("Read vector values")) {
+                ImGui::OpenPopup("uint32_output");
+            }
+            break;
+    }
+
+    ImGui::PopID();
+}
+int param_uint32_vec::read(std::string const& target_device) {
+    if (length_ == 0) {
+        return jcs::RET_OK;
+    }
+    std::string fail_text = "Parameter failed " + name_;
+    PARAM_NOTIFY_ERROR( host_->read_uint32(target_device, name_, &read_val_), fail_text )
+    for (int i=0; i<read_val_.size(); i++) { write_val_[i] = read_val_[i]; }
+    return jcs::RET_OK;
+}
+void param_uint32_vec::write_to_file(YAML::Emitter& yemit) {
+    if (length_ == 0) { return; }
+    yemit << YAML::Key;
+    yemit << name_;
+    yemit << YAML::Flow;
+    yemit << YAML::BeginSeq;
+    for (int i=0; i<read_val_.size(); i++) { yemit << (unsigned int)read_val_[i]; }
+    yemit << YAML::EndSeq;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
 void param_uint16::render(std::string const& target_device) {
     ImGui::PushID((target_device + name_).c_str());
 
@@ -443,6 +551,113 @@ void param_uint16::write_to_file(YAML::Emitter& yemit) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+param_uint16_vec::param_uint16_vec(jcs::jcs_host* host, std::string const& name, int length) :
+    param_base(host, name, length)
+{
+    write_val_.resize(length);
+    read_val_.resize(length);
+}
+void param_uint16_vec::render(std::string const& target_device) {
+    ImGui::PushID((target_device + name_).c_str());
+
+    ImGui::TableNextColumn();
+    ImGui::TextUnformatted(name_.c_str());
+
+    ImGui::TableNextColumn();
+    ImGui::Text("uint16 vec");
+
+    ImGui::TableNextColumn();
+    ImGui::Text("%u", length_);
+
+    // Write
+    ImGui::TableNextColumn();
+    std::string fail_text = "Parameter failed " + name_;
+
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    if (ImGui::BeginPopupContextItem("uint16_input")) {
+        char buf[64];
+        ImGui::Text("Vector values:");
+        for (int i=0; i<write_val_.size(); i++) {
+            ImGui::PushID(i);
+            sprintf(buf, "Element: %u", i);
+            int tmp = (int)write_val_[i];
+            if (ImGui::DragInt(buf, &tmp, 1.0f, 0, 65535)) {
+                write_val_[i] = (uint16_t)tmp;
+            }
+            ImGui::PopID();
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    if (ImGui::Button("Set vector values")) {
+        ImGui::OpenPopup("uint16_input");
+    }
+
+    ImGui::TableNextColumn();
+    if (ImGui::Button("Write", ImVec2(-FLT_MIN, 0.0f))) {
+        PARAM_NOTIFY( host_->write_uint16(target_device, name_, write_val_), fail_text )
+    }
+
+    ImGui::TableNextColumn();
+    if (ImGui::Button("Read", ImVec2(-FLT_MIN, 0.0f))) {
+        PARAM_NOTIFY( host_->read_uint16(target_device, name_, &read_val_), fail_text )
+    }
+
+    // Watch
+    ImGui::TableNextColumn();
+    if (read_val_.size() <= 4) {
+        ImGui::Checkbox("##watch", &watch_);
+        if (watch_) {
+            read(target_device);
+        }
+    }
+
+    ImGui::TableNextColumn();
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    switch (read_val_.size()) {
+        case 1: ImGui::Text("%u", (unsigned int)read_val_[0]); break;
+        case 2: ImGui::Text("%u, %u", (unsigned int)read_val_[0], (unsigned int)read_val_[1]); break;
+        case 3: ImGui::Text("%u, %u, %u", (unsigned int)read_val_[0], (unsigned int)read_val_[1], (unsigned int)read_val_[2]); break;
+        case 4: ImGui::Text("%u, %u, %u, %u", (unsigned int)read_val_[0], (unsigned int)read_val_[1], (unsigned int)read_val_[2], (unsigned int)read_val_[3]); break;
+        default:
+            if (ImGui::BeginPopupContextItem("uint16_output")) {
+                ImGui::Text("Vector values:");
+                for (int i=0; i<read_val_.size(); i++) {
+                    ImGui::PushID(i);
+                    ImGui::Text("Element: %u, %u", i, (unsigned int)read_val_[i]);
+                    ImGui::PopID();
+                }
+                ImGui::EndPopup();
+            }
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            if (ImGui::Button("Read vector values")) {
+                ImGui::OpenPopup("uint16_output");
+            }
+            break;
+    }
+
+    ImGui::PopID();
+}
+int param_uint16_vec::read(std::string const& target_device) {
+    if (length_ == 0) {
+        return jcs::RET_OK;
+    }
+    std::string fail_text = "Parameter failed " + name_;
+    PARAM_NOTIFY_ERROR( host_->read_uint16(target_device, name_, &read_val_), fail_text )
+    for (int i=0; i<read_val_.size(); i++) { write_val_[i] = read_val_[i]; }
+    return jcs::RET_OK;
+}
+void param_uint16_vec::write_to_file(YAML::Emitter& yemit) {
+    if (length_ == 0) { return; }
+    yemit << YAML::Key;
+    yemit << name_;
+    yemit << YAML::Flow;
+    yemit << YAML::BeginSeq;
+    for (int i=0; i<read_val_.size(); i++) { yemit << (unsigned int)read_val_[i]; }
+    yemit << YAML::EndSeq;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
 void param_uint8::render(std::string const& target_device) {
     ImGui::PushID((target_device + name_).c_str());
 
@@ -514,6 +729,113 @@ int param_uint8::read(std::string const& target_device) {
 void param_uint8::write_to_file(YAML::Emitter& yemit) {
     if (length_ == 0) { return; }
     yemit << YAML::Key << name_ << YAML::Value << (unsigned int)read_val_;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+param_uint8_vec::param_uint8_vec(jcs::jcs_host* host, std::string const& name, int length) :
+    param_base(host, name, length)
+{
+    write_val_.resize(length);
+    read_val_.resize(length);
+}
+void param_uint8_vec::render(std::string const& target_device) {
+    ImGui::PushID((target_device + name_).c_str());
+
+    ImGui::TableNextColumn();
+    ImGui::TextUnformatted(name_.c_str());
+
+    ImGui::TableNextColumn();
+    ImGui::Text("uint8 vec");
+
+    ImGui::TableNextColumn();
+    ImGui::Text("%u", length_);
+
+    // Write
+    ImGui::TableNextColumn();
+    std::string fail_text = "Parameter failed " + name_;
+
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    if (ImGui::BeginPopupContextItem("uint8_input")) {
+        char buf[64];
+        ImGui::Text("Vector values:");
+        for (int i=0; i<write_val_.size(); i++) {
+            ImGui::PushID(i);
+            sprintf(buf, "Element: %u", i);
+            int tmp = (int)write_val_[i];
+            if (ImGui::DragInt(buf, &tmp, 1.0f, 0, 255)) {
+                write_val_[i] = (uint8_t)tmp;
+            }
+            ImGui::PopID();
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    if (ImGui::Button("Set vector values")) {
+        ImGui::OpenPopup("uint8_input");
+    }
+
+    ImGui::TableNextColumn();
+    if (ImGui::Button("Write", ImVec2(-FLT_MIN, 0.0f))) {
+        PARAM_NOTIFY( host_->write_uint8(target_device, name_, write_val_), fail_text )
+    }
+
+    ImGui::TableNextColumn();
+    if (ImGui::Button("Read", ImVec2(-FLT_MIN, 0.0f))) {
+        PARAM_NOTIFY( host_->read_uint8(target_device, name_, &read_val_), fail_text )
+    }
+
+    // Watch
+    ImGui::TableNextColumn();
+    if (read_val_.size() <= 4) {
+        ImGui::Checkbox("##watch", &watch_);
+        if (watch_) {
+            read(target_device);
+        }
+    }
+
+    ImGui::TableNextColumn();
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    switch (read_val_.size()) {
+        case 1: ImGui::Text("%u", (unsigned int)read_val_[0]); break;
+        case 2: ImGui::Text("%u, %u", (unsigned int)read_val_[0], (unsigned int)read_val_[1]); break;
+        case 3: ImGui::Text("%u, %u, %u", (unsigned int)read_val_[0], (unsigned int)read_val_[1], (unsigned int)read_val_[2]); break;
+        case 4: ImGui::Text("%u, %u, %u, %u", (unsigned int)read_val_[0], (unsigned int)read_val_[1], (unsigned int)read_val_[2], (unsigned int)read_val_[3]); break;
+        default:
+            if (ImGui::BeginPopupContextItem("uint8_output")) {
+                ImGui::Text("Vector values:");
+                for (int i=0; i<read_val_.size(); i++) {
+                    ImGui::PushID(i);
+                    ImGui::Text("Element: %u, %u", i, (unsigned int)read_val_[i]);
+                    ImGui::PopID();
+                }
+                ImGui::EndPopup();
+            }
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            if (ImGui::Button("Read vector values")) {
+                ImGui::OpenPopup("uint8_output");
+            }
+            break;
+    }
+
+    ImGui::PopID();
+}
+int param_uint8_vec::read(std::string const& target_device) {
+    if (length_ == 0) {
+        return jcs::RET_OK;
+    }
+    std::string fail_text = "Parameter failed " + name_;
+    PARAM_NOTIFY_ERROR( host_->read_uint8(target_device, name_, &read_val_), fail_text )
+    for (int i=0; i<read_val_.size(); i++) { write_val_[i] = read_val_[i]; }
+    return jcs::RET_OK;
+}
+void param_uint8_vec::write_to_file(YAML::Emitter& yemit) {
+    if (length_ == 0) { return; }
+    yemit << YAML::Key;
+    yemit << name_;
+    yemit << YAML::Flow;
+    yemit << YAML::BeginSeq;
+    for (int i=0; i<read_val_.size(); i++) { yemit << (unsigned int)read_val_[i]; }
+    yemit << YAML::EndSeq;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

@@ -95,6 +95,19 @@ private:
     uint32_t write_val_;
     uint32_t read_val_;
 };
+///////////////////////////////////////////////////////////////////////////////////////////
+class param_uint32_vec : public param_base {
+public:
+    param_uint32_vec(jcs::jcs_host* host, std::string const& name, int length);
+
+    void render(std::string const& target_device);
+    int  read(std::string const& target_device);
+    void write_to_file(YAML::Emitter& yemit);
+
+private:
+    std::vector<uint32_t> write_val_;
+    std::vector<uint32_t> read_val_;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 class param_uint16 : public param_base {
@@ -110,6 +123,19 @@ private:
     uint16_t write_val_;
     uint16_t read_val_;
 };
+///////////////////////////////////////////////////////////////////////////////////////////
+class param_uint16_vec : public param_base {
+public:
+    param_uint16_vec(jcs::jcs_host* host, std::string const& name, int length);
+
+    void render(std::string const& target_device);
+    int  read(std::string const& target_device);
+    void write_to_file(YAML::Emitter& yemit);
+
+private:
+    std::vector<uint16_t> write_val_;
+    std::vector<uint16_t> read_val_;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 class param_uint8 : public param_base {
@@ -124,7 +150,19 @@ public:
 private:
     uint8_t write_val_;
     uint8_t read_val_;
-     std::vector<std::string> const* enums_;
+};
+///////////////////////////////////////////////////////////////////////////////////////////
+class param_uint8_vec : public param_base {
+public:
+    param_uint8_vec(jcs::jcs_host* host, std::string const& name, int length);
+
+    void render(std::string const& target_device);
+    int  read(std::string const& target_device);
+    void write_to_file(YAML::Emitter& yemit);
+
+private:
+    std::vector<uint8_t> write_val_;
+    std::vector<uint8_t> read_val_;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////

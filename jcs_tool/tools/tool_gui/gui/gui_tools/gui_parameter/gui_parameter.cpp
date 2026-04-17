@@ -63,22 +63,39 @@ int gui_parameter::startup() {
             default: break;
             case jcs::parameter_type::p_none_t:    param_store_.push_back(new param_none(host_, p->name, p->length));    break;
             case jcs::parameter_type::p_bool_t:    param_store_.push_back(new param_boolean(host_, p->name, p->length)); break;
-            // case jcs::parameter_type::p_float32_t: param_store_.push_back(new param_float32(host_, p->name, p->length)); break;
 
-            case jcs::parameter_type::p_float32_t: 
+            case jcs::parameter_type::p_float32_t:
                 if (p->length <= 1) {
                     param_store_.push_back(new param_float32(host_, p->name, p->length));
-                    break;
                 } else {
-                    // Vector version
                     param_store_.push_back(new param_float32_vec(host_, p->name, p->length));
-                    break;
                 }
+                break;
 
+            case jcs::parameter_type::p_uint32_t:
+                if (p->length <= 1) {
+                    param_store_.push_back(new param_uint32(host_, p->name, p->length));
+                } else {
+                    param_store_.push_back(new param_uint32_vec(host_, p->name, p->length));
+                }
+                break;
 
-            case jcs::parameter_type::p_uint32_t:  param_store_.push_back(new param_uint32(host_, p->name, p->length));  break;
-            case jcs::parameter_type::p_uint16_t:  param_store_.push_back(new param_uint16(host_, p->name, p->length));  break;
-            case jcs::parameter_type::p_uint8_t:   param_store_.push_back(new param_uint8(host_, p->name, p->length));   break;
+            case jcs::parameter_type::p_uint16_t:
+                if (p->length <= 1) {
+                    param_store_.push_back(new param_uint16(host_, p->name, p->length));
+                } else {
+                    param_store_.push_back(new param_uint16_vec(host_, p->name, p->length));
+                }
+                break;
+
+            case jcs::parameter_type::p_uint8_t:
+                if (p->length <= 1) {
+                    param_store_.push_back(new param_uint8(host_, p->name, p->length));
+                } else {
+                    param_store_.push_back(new param_uint8_vec(host_, p->name, p->length));
+                }
+                break;
+
             // Enum type gets a pointer to structure of enum strings for validation and naming
             case jcs::parameter_type::p_enum8_t:
                 {
