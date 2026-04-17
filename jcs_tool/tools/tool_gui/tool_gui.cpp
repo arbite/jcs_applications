@@ -141,12 +141,10 @@ int tool_gui::step_parameter_startup() {
 
     // Populate some nice helpers
     // Build combo box names lists
-    if (helpers::build_input_signal_names_list(host_, &f32_input_signal_names_) != jcs::RET_OK) {
-        return jcs::RET_ERROR;
-    }
-    if (helpers::build_output_signal_names_list(host_, &f32_output_signal_names_) != jcs::RET_OK) {
-        return jcs::RET_ERROR;
-    }
+    if (helpers::build_signal_names_list(host_, jcs::signal_type::float32_s, &f32_input_signal_names_, &f32_output_signal_names_) != jcs::RET_OK) { return jcs::RET_ERROR; }
+    if (helpers::build_signal_names_list(host_, jcs::signal_type::uint32_s,  &u32_input_signal_names_, &u32_output_signal_names_) != jcs::RET_OK) { return jcs::RET_ERROR; }
+    if (helpers::build_signal_names_list(host_, jcs::signal_type::uint16_s,  &u16_input_signal_names_, &u16_output_signal_names_) != jcs::RET_OK) { return jcs::RET_ERROR; }
+    if (helpers::build_signal_names_list(host_, jcs::signal_type::uint8_s,   &u8_input_signal_names_,  &u8_output_signal_names_)  != jcs::RET_OK) { return jcs::RET_ERROR; }
 
     for (int i=0; i<store_.size(); i++) {
         if (store_[i]->startup() != jcs::RET_OK) {
@@ -419,6 +417,26 @@ std::vector<std::string>* tool_gui::get_f32_output_signal_names() {
     return &f32_output_signal_names_;
 }
 
+std::vector<std::string>* tool_gui::get_u32_input_signal_names() {
+    return &u32_input_signal_names_;
+}
+std::vector<std::string>* tool_gui::get_u32_output_signal_names() {
+    return &u32_output_signal_names_;
+}
+
+std::vector<std::string>* tool_gui::get_u16_input_signal_names() {
+    return &u16_input_signal_names_;
+}
+std::vector<std::string>* tool_gui::get_u16_output_signal_names() {
+    return &u16_output_signal_names_;
+}
+
+std::vector<std::string>* tool_gui::get_u8_input_signal_names() {
+    return &u8_input_signal_names_;
+}
+std::vector<std::string>* tool_gui::get_u8_output_signal_names() {
+    return &u8_output_signal_names_;
+}
 
 // Extracted from
 // https://github.com/pthom/hello_imgui/tree/master/src/hello_imgui/impl

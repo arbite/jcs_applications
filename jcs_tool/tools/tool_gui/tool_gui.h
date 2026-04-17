@@ -39,6 +39,12 @@ public:
     int reset();
     std::vector<std::string>* get_f32_input_signal_names();
     std::vector<std::string>* get_f32_output_signal_names();
+    std::vector<std::string>* get_u32_input_signal_names();
+    std::vector<std::string>* get_u32_output_signal_names();
+    std::vector<std::string>* get_u16_input_signal_names();
+    std::vector<std::string>* get_u16_output_signal_names();
+    std::vector<std::string>* get_u8_input_signal_names();
+    std::vector<std::string>* get_u8_output_signal_names();
 
 private:
     int render_display();
@@ -53,6 +59,12 @@ private:
     // Signal helpers
     std::vector<std::string> f32_input_signal_names_;
     std::vector<std::string> f32_output_signal_names_;
+    std::vector<std::string> u32_input_signal_names_;
+    std::vector<std::string> u32_output_signal_names_;
+    std::vector<std::string> u16_input_signal_names_;
+    std::vector<std::string> u16_output_signal_names_;
+    std::vector<std::string> u8_input_signal_names_;
+    std::vector<std::string> u8_output_signal_names_;
 
     // Device selection helpers
     int device_select_idx_;

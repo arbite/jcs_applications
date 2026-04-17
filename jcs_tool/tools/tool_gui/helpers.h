@@ -70,8 +70,10 @@ namespace helpers {
     void result_text_copyable(std::string const& text, int const height, std::vector<float> const& result, int const wrap_after_elements);
     std::string to_string_with_dp(double val, int dp);
 
-    int build_output_signal_names_list(jcs::jcs_host* host, std::vector<std::string>* f32_output_signal_names);
-    int build_input_signal_names_list(jcs::jcs_host* host, std::vector<std::string>* f32_input_signal_names);
+    int build_signal_names_list(jcs::jcs_host* host, jcs::signal_type sig_type,
+                                std::vector<std::string>* input_signal_names,
+                                std::vector<std::string>* output_signal_names);
+
     int signals_names_contains(std::vector<std::string>* signal_names, std::string const& name, int* found_index) ;
     bool signals_check(std::vector<std::string>* signal_names_store, std::vector<std::string>* required_signal_names);
     bool input_signals_check(std::vector<std::string>* input_signal_names_store, std::vector<std::string>* required_input_signal_names);
