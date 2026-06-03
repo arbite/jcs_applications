@@ -69,8 +69,8 @@ void plot_sink_int::update() {
     ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
 
     if (ImGui::Button("Min/max reset")) {
-        min_ = 0.0f;
-        max_ = 0.0f;
+        min_ = value;
+        max_ = value;
     }
     ImGui::SameLine();
     ImGui::SliderFloat("History", &history_, 1, 30, "%.1f s");
