@@ -107,7 +107,7 @@ void gui_host_network_firmware_update::fw_update_render() {
 
     ImGui::Separator();
     if (ImGui::Button("Validate firmware list - see logs")) {
-        host_->validate_network_firmware_filenames(&fw_names_);
+        host_->validate_network_firmware_filenames(fw_names_);
     }
 
     ImGui::Separator();
@@ -126,7 +126,7 @@ void gui_host_network_firmware_update::fw_update_render() {
             ImGui::TextColored(ImVec4(0.5f, 0.0f, 0.0f, 1.0f), "Double check this is what you want!");
         }
         if (ImGui::Button("Write Network Firmware")) {
-            if (host_->write_new_network_firmware(&fw_names_, fw_only_write_listed_) == jcs::RET_OK) {
+            if (host_->write_new_network_firmware(fw_names_, fw_only_write_listed_) == jcs::RET_OK) {
                 fw_status_ = status::success_s;
             } else {
                 fw_status_ = status::failed_s;
@@ -206,7 +206,7 @@ void gui_host_network_firmware_update::fl_update_render() {
 
     ImGui::Separator();
     if (ImGui::Button("Validate flashloader list - see logs")) {
-        host_->validate_network_firmware_filenames(&fw_names_);
+        host_->validate_network_flashloader_filenames(fw_names_);
     }
 
     ImGui::Separator();
@@ -225,7 +225,7 @@ void gui_host_network_firmware_update::fl_update_render() {
             ImGui::TextColored(ImVec4(0.5f, 0.0f, 0.0f, 1.0f), "Double check this is what you want!");
         }
         if (ImGui::Button("Write Network Flashloaders")) {
-            if (host_->write_new_network_flashloader(&fl_names_, fl_only_write_listed_) == jcs::RET_OK) {
+            if (host_->write_new_network_flashloader(fl_names_, fl_only_write_listed_) == jcs::RET_OK) {
                 fl_status_ = status::success_s;
             } else {
                 fl_status_ = status::failed_s;
