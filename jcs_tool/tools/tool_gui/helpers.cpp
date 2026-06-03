@@ -4,6 +4,7 @@
 #include "helpers.h"
 #include "jcs_user_external.h"
 #include <cmath>
+#include <algorithm>
 
 // Helper to display a little (?) mark which shows a tooltip when hovered.
 // In your own code you may want to display an actual icon if you are using a merged icon fonts (see docs/FONTS.md)
@@ -228,17 +229,19 @@ bool helpers::output_signals_check(std::vector<std::string>* output_signal_names
 
 // Normalise [-pi, pi]
 double helpers::angle_norm_pipi(double angle) {
-    double angle_norm = angle;
-    while (angle_norm > M_PI)  { angle_norm -= 2.0*M_PI; }
-    while (angle_norm < -M_PI) { angle_norm += 2.0*M_PI; }
-    return angle_norm;
+    double angle_norm = std::fmod(angle + M_PI, 2.0 * M_PI);
+    if (angle_norm < 0) {
+        angle_norm += 2.0 * M_PI;
+    }
+    return angle_norm - M_PI;
 }
 
 // Normalise [0, 2pi]
 double helpers::angle_norm_2pi(double angle) {
-    double angle_norm = angle;
-    while (angle_norm >= M_TWO_PI){ angle_norm -= M_TWO_PI; }
-    while (angle_norm < 0.0)      { angle_norm += M_TWO_PI; }
+    double angle_norm = std::fmod(angle, 2.0 * M_PI);
+    if (angle_norm < 0) {
+        angle_norm += 2.0 * M_PI;
+    }
     return angle_norm;
 }
 
