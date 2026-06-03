@@ -149,6 +149,25 @@ int gui_parameter::render() {
         ImGui::EndTable();
     }
 
+    ImGui::Text("Calibration Parameters");
+    ImGui::Text("Warning: Starting calibration will erase ALL caibration values");
+    ImGui::Text("Warning: All calibration values must be written in the open session");
+    ImGui::Text("- Unlock three times to unlock calibration");
+    ImGui::Text("- Start to erase the calibration values and begin the calibration session");
+    ImGui::Text("- Finish to end calibration session and write values to internal flash");
+
+    if (ImGui::Button("Unlock")) {
+        host_->write_command(target_device_, "calib_flash_unlock");
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Start")) {
+        host_->write_command(target_device_, "calib_flash_start");
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Finish")) {
+        host_->write_command(target_device_, "calib_flash_finish");
+    }
+
     return jcs::RET_OK;
 }
 
