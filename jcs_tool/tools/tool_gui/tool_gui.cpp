@@ -26,6 +26,7 @@
 #include "gui_process_pd.h"
 #include "gui_process_interpolator.h"
 #include "gui_process_transform.h"
+#include "gui_process_map.h"
 
 tool_gui::tool_gui(std::string name, jcs::jcs_host* host) :
     // tool gui does not use mem lock just yet
@@ -185,6 +186,7 @@ void tool_gui::build_store() {
             else if (device_tree_->at(i).procs[p].node_type == "proc_pd")             { store_.push_back(new gui_process_pd(host_, gui_if, device_tree_->at(i).procs[p].name)); }
             else if (device_tree_->at(i).procs[p].node_type == "proc_interpolator")   { store_.push_back(new gui_process_interpolator(host_, gui_if, device_tree_->at(i).procs[p].name)); }
             else if (device_tree_->at(i).procs[p].node_type == "proc_transform")      { store_.push_back(new gui_process_transform(host_, gui_if, device_tree_->at(i).procs[p].name)); }
+            else if (device_tree_->at(i).procs[p].node_type == "proc_map")            { store_.push_back(new gui_process_map(host_, gui_if, device_tree_->at(i).procs[p].name)); }
             // Nothing to do
             else { }
         }
