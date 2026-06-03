@@ -10,6 +10,7 @@ JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_host.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_joint_controller.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_motor_controller.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_encoder_absolute.o
+JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_encoder_absolute_icmu.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_encoder_absolute_slide_by_hall.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_braking_chopper.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_device/gui_device_encoder_relative.o
@@ -53,6 +54,10 @@ JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_mc_encoder_calib/mc_e
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_mc_thermal_calib/gui_mc_thermal_calib.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_mc_thermal_calib/mc_thermal_fitter.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_bc_tune/gui_bc_tune.o
+JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/gui_icmu_calibrate.o
+JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/icmu_calibration_core.o
+JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/icmu_calibrate_hand.o
+JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/icmu_calibrate_driven.o
 
 # Hoppy robot
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_fun/2d_hopper/gui_host_2d_hopper.o
@@ -67,6 +72,7 @@ JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_fun/2d_hopper/hopper_2d_virtual
 DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_motor_controller.o
 DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_joint_controller.o
 DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_encoder_absolute.o
+DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_encoder_absolute_icmu.o
 DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_encoder_absolute_slide_by_hall.o
 DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_braking_chopper.o
 DEV_HOST_SRC += build/parameter_helpers/device/jcs_dev_encoder_relative.o
@@ -97,6 +103,8 @@ DEV_HOST_SRC += build/parameter_helpers/process/jcs_proc_map.o
 # C targets
 3RD_PARTY_CSRC += build/imgui/implot_demos/3rdparty/kissfft/kiss_fftr.o
 3RD_PARTY_CSRC += build/imgui/implot_demos/3rdparty/kissfft/kiss_fft.o
+# ICmu helpers
+3RD_PARTY_CSRC += build/icmu/mu_3sl_calibration_adjustments.o
 
 3RD_PARTY_COPTS	 = -Dkiss_fft_scalar=double
 
@@ -123,6 +131,8 @@ JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_tools/gui_mc_current_
 JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_tools/gui_mc_encoder_calib/
 JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_tools/gui_mc_thermal_calib/
 JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_tools/gui_bc_tune/
+JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_tools/gui_icmu_calibrate/
+JCS_TOOL_GUI_INC += -I$(3RD_PARTY_PATH)/icmu/
 
 JCS_TOOL_GUI_INC += -I$(TARGET_PATH)tools/tool_gui/gui/gui_fun/2d_hopper/
 
@@ -137,6 +147,9 @@ JCS_TOOL_GUI_INC += -I$(3RD_PARTY_PATH)imgui/implot_demos/3rdparty/kissfft/
 JCS_TOOL_GUI_INC += -I$(JCS_DEV_HOST_PATH)parameter_helpers/
 JCS_TOOL_GUI_INC += -I$(JCS_DEV_HOST_PATH)parameter_helpers/device/
 JCS_TOOL_GUI_INC += -I$(JCS_DEV_HOST_PATH)parameter_helpers/process/
+
+# Eigen
+JCS_TOOL_GUI_INC += -I/usr/include/eigen3
 
 # JCS_TOOL_GUI_LIBEXT = -lGL -ldl `sdl2-config --libs`
 # JCS_TOOL_GUI_CXXFLAGS = `sdl2-config --cflags`

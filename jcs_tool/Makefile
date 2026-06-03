@@ -41,6 +41,17 @@ LIB_EXT           += $(LIB_SOEM)
 LIB_EXT           += `pkg-config --static --libs yaml-cpp`
 INC_EXT           += -I/usr/include/yaml-cpp
 
+# icmu
+# sudo cp ./libMU_3SL_interface.so /usr/lib/
+# sudo ldconfig
+# LIB_EXT           += -L/usr/lib -l:libMU_3SL_interface.so.3.2.0
+# Deploy icmu library with the binary into the build dir.
+# This means user does not have to install into system
+ICMU_REL_DIR       = 3rd_party/icmu
+ICMU_LIB_PATH      = $(BASE_PATH)$(ICMU_REL_DIR)/
+LIB_EXT           += -L$(ICMU_LIB_PATH) -l:libMU_3SL_interface.so.3.2.0
+LIB_EXT           += -Wl,-rpath,'$$ORIGIN'
+
 ##############################################################################################################
 # COMPILER WARNINGS
 CPPWARNINGS  = 
@@ -141,7 +152,17 @@ PROJ_OBJS += $(3RD_PARTY_CPPOBJ)
 PROJ_OBJS += $(3RD_PARTY_COBJ)
 
 ##############################################################################################################
-$(TARGET): $(PROJ_OBJS)
+# Copy icmu lib into build
+ICMU_DEPLOYED  = build/libMU_3SL_interface.so.3
+$(ICMU_DEPLOYED): $(ICMU_LIB_PATH)libMU_3SL_interface.so.3.2.0
+	@$(MKDIR) build
+	cp $< build/libMU_3SL_interface.so.3.2.0
+	ln -sf libMU_3SL_interface.so.3.2.0 $@
+
+##############################################################################################################
+.DEFAULT_GOAL := $(TARGET)
+
+$(TARGET): $(ICMU_DEPLOYED) $(PROJ_OBJS)
 	@echo 'Linking target $@'
 	$(LD) $(COPTS) -o build/$(TARGET) $(PROJ_OBJS) $(LIB_EXT)
 

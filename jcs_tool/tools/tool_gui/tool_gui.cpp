@@ -13,6 +13,7 @@
 #include "gui_device_joint_controller.h"
 #include "gui_device_motor_controller.h"
 #include "gui_device_encoder_absolute.h"
+#include "gui_device_encoder_absolute_icmu.h"
 #include "gui_device_encoder_absolute_slide_by_hall.h"
 #include "gui_device_braking_chopper.h"
 #include "gui_device_encoder_relative.h"
@@ -174,6 +175,7 @@ void tool_gui::build_store() {
         else if (device_tree_->at(i).node_type == "dev_joint_controller")                { store_.push_back(new gui_device_joint_controller(host_, gui_if, device_tree_->at(i).name)); }
         else if (device_tree_->at(i).node_type == "dev_motor_controller")                { store_.push_back(new gui_device_motor_controller(host_, gui_if, device_tree_->at(i).name)); }
         else if (device_tree_->at(i).node_type == "dev_encoder_absolute")                { store_.push_back(new gui_device_encoder_absolute(host_, gui_if, device_tree_->at(i).name)); }
+        else if (device_tree_->at(i).node_type == "dev_encoder_absolute_icmu")           { store_.push_back(new gui_device_encoder_absolute_icmu(host_, gui_if, device_tree_->at(i).name)); }
         else if (device_tree_->at(i).node_type == "dev_encoder_absolute_slide_by_hall")  { store_.push_back(new gui_device_encoder_absolute_slide_by_hall(host_, gui_if, device_tree_->at(i).name)); }
         else if (device_tree_->at(i).node_type == "dev_braking_chopper")                 { store_.push_back(new gui_device_braking_chopper(host_, gui_if, device_tree_->at(i).name)); }
         else if (device_tree_->at(i).node_type == "dev_encoder_relative")                { store_.push_back(new gui_device_encoder_relative(host_, gui_if, device_tree_->at(i).name)); }
