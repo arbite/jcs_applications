@@ -23,6 +23,7 @@ JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_process/gui_process_pid.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_process/gui_process_pd.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_process/gui_process_interpolator.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_process/gui_process_transform.o
+JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_process/gui_process_map.o
 
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_plot/gui_plot.o
 JCS_TOOL_GUI_SRC += build/tools/tool_gui/gui/gui_tools/gui_plot/plot_sink_int.o
@@ -79,6 +80,7 @@ DEV_HOST_SRC += build/parameter_helpers/process/jcs_proc_pid.o
 DEV_HOST_SRC += build/parameter_helpers/process/jcs_proc_pd.o
 DEV_HOST_SRC += build/parameter_helpers/process/jcs_proc_interpolator.o
 DEV_HOST_SRC += build/parameter_helpers/process/jcs_proc_transform.o
+DEV_HOST_SRC += build/parameter_helpers/process/jcs_proc_map.o
 
 # Imgui and misc
 3RD_PARTY_SRC += build/imgui/imgui/imgui.o
