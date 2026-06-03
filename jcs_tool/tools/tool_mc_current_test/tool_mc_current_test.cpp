@@ -207,9 +207,7 @@ int tool_mc_current_test::step_parameter_startup() {
 }
 
 int tool_mc_current_test::step_parameter() {
-    if (host_->has_estop()) {
-        return jcs::RET_ERROR;
-    }
+    host_->estop_decode_maybe();
     return jcs::RET_OK;
 }
 
