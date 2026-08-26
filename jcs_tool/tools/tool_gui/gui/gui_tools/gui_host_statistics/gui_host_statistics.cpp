@@ -55,10 +55,14 @@ int gui_host_statistics::step_rt_always() {
     cycle_buffer_.add_point(t_s_, (float)timing_.total_cycle_time_ns/1000.0f);
     data_exchange_buffer_.add_point(t_s_, (float)timing_.data_exchange_time_ns/1000.0f);
     // Thread wakup delta
-    thread_timestamp_buffer_.add_point(t_s_, (float)(timing_.start_cycle_time_ns - start_cycle_time_old_ns_)/1000.0f);
+    // Skip the first sample: start_cycle_time_old_ns_ has nothing in it yet, so the
+    // delta would be the raw clock value.
+    if (start_cycle_time_old_ns_ != 0) {
+        thread_timestamp_buffer_.add_point(t_s_, (float)(timing_.start_cycle_time_ns - start_cycle_time_old_ns_)/1000.0f);
+    }
     start_cycle_time_old_ns_ = timing_.start_cycle_time_ns;
 
-    to_mean_buffer_.add_point(t_s_, (float)health_.thread_offset.mean);
+    to_mean_buffer_.add_point(t_s_, (float)health_.thread.mean);
 
     transport_ = host_->statistics_transport_get();
     // Thread offset PI controller
@@ -173,7 +177,7 @@ int gui_host_statistics::render() {
         ImGui::EndTable();
     }
 
-    ImGui::Text("Thread Offset Controller Overrun");
+    ImGui::Text("Base Rate Jitter Overrun");
     if (ImGui::BeginTable("Thread overrun", 3, table_flags)) {
         ImGui::TableSetupColumn("Overrun count",       ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Last timestamp (us)", ImGuiTableColumnFlags_WidthStretch);
@@ -182,14 +186,14 @@ int gui_host_statistics::render() {
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::Text("%u", (int)health_.thread_offset.overrun_count);
+        ImGui::Text("%u", (int)health_.thread.overrun_count);
         ImGui::TableSetColumnIndex(1);
-        ImGui::Text("%7.3f", (float)health_.thread_offset.last_timestamp_ns/1000.0f);
+        ImGui::Text("%7.3f", (float)health_.thread.last_timestamp_ns/1000.0f);
         ImGui::TableSetColumnIndex(2);
-        ImGui::Text("%7.3f", (float)health_.thread_offset.counts_percent);
+        ImGui::Text("%7.3f", (float)health_.thread.counts_percent);
         ImGui::EndTable();
     }
-    ImGui::Text("Thread Offset Controller Statistics");
+    ImGui::Text("Cycle Period Statistics");
     if (ImGui::BeginTable("Thread stats", 2, table_flags)) {
         ImGui::TableSetupColumn("##", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("##", ImGuiTableColumnFlags_WidthStretch);
@@ -198,27 +202,27 @@ int gui_host_statistics::render() {
         ImGui::TableSetColumnIndex(0);
         ImGui::Text("Mean (ns)");
         ImGui::TableSetColumnIndex(1);
-        ImGui::Text("%7.3f", (float)health_.thread_offset.mean);
+        ImGui::Text("%7.3f", (float)health_.thread.mean);
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
         ImGui::Text("Variance (ns^2)");
         ImGui::TableSetColumnIndex(1);
-        ImGui::Text("%7.3f", (float)health_.thread_offset.variance);
+        ImGui::Text("%7.3f", (float)health_.thread.variance);
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);        
         ImGui::Text("Std Deviation (ns)");
         ImGui::TableSetColumnIndex(1);
-        ImGui::Text("%7.3f", (float)health_.thread_offset.std_dev);
+        ImGui::Text("%7.3f", (float)health_.thread.std_dev);
         ImGui::EndTable();
     }
 
     // More pretty plots
-    if (ImPlot::BeginPlot("Thread offset plot")) {
+    if (ImPlot::BeginPlot("Thread cycle time plot")) {
         ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
 
-        ImPlot::SetupAxes("t (ns)", nullptr, x_flags, y_flags);
+        ImPlot::SetupAxes("t (s)", "cycle time (ns)", x_flags, y_flags);
         ImPlot::SetupAxisLimits(ImAxis_X1, t_s_ - max_history_s_, t_s_, ImGuiCond_Once);
         ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
 
@@ -231,7 +235,7 @@ int gui_host_statistics::render() {
     if (ImPlot::BeginPlot("Thread wakeup delta plot")) {
         ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
 
-        ImPlot::SetupAxes("t (us)", nullptr, x_flags, y_flags);
+        ImPlot::SetupAxes("t (s)", "delta (us)", x_flags, y_flags);
         ImPlot::SetupAxisLimits(ImAxis_X1, t_s_ - max_history_s_, t_s_, ImGuiCond_Once);
         ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
 
@@ -244,7 +248,7 @@ int gui_host_statistics::render() {
     if (ImPlot::BeginPlot("Thread offset controller error plot")) {
         ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
 
-        ImPlot::SetupAxes("t (us)", nullptr, x_flags, y_flags);
+        ImPlot::SetupAxes("t (s)", "error (us)", x_flags, y_flags);
         ImPlot::SetupAxisLimits(ImAxis_X1, t_s_ - max_history_s_, t_s_, ImGuiCond_Once);
         ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
 
@@ -257,7 +261,7 @@ int gui_host_statistics::render() {
     if (ImPlot::BeginPlot("Thread offset controller correction plot")) {
         ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
 
-        ImPlot::SetupAxes("t (us)", nullptr, x_flags, y_flags);
+        ImPlot::SetupAxes("t (s)", "correction (us)", x_flags, y_flags);
         ImPlot::SetupAxisLimits(ImAxis_X1, t_s_ - max_history_s_, t_s_, ImGuiCond_Once);
         ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
 
