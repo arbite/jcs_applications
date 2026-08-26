@@ -149,6 +149,12 @@ void* thread_host_rt(void* arg) {
             host_args->do_running = false;
             break;
         }
+        // Estop?
+        if (host->estop_latched_rt()) {
+            host->estop_ack_rt();
+            tools->estop_rt();
+        }
+
         if (host->data_is_valid_rt()) {
             // Step cyclic tools
             switch (tools->step_rt()) {

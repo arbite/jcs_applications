@@ -29,6 +29,10 @@ public:
     // Return jcs::RET_NRDY to shutdown gracefully
     // Return jcs::RET_ERROR for any Estop or error conditions
     virtual int step_rt() = 0;
+    // Realtime estop notification:
+    // Called within the realtime thread when the host has latched an estop.
+    // Default implementation does nothing.
+    virtual void estop_rt() {}
     // Realtime shutdown function:
     // Called within realtime thread, after exiting the cyclic loop
     virtual int step_shutdown_rt() = 0;

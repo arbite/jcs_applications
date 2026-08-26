@@ -53,11 +53,6 @@ int tool_gui::step_startup_rt() {
 }
 
 int tool_gui::step_rt() {
-    // Estop?
-    if (host_->estop_latched_rt()) {
-        run_status_ = run_status::estop;
-        host_->estop_ack_rt();
-    }
     // Host might have things to always tick over
     // Note: Ok to call on host_ptr_ as this function will not be called
     // until host_ptr_ is attached and store_ is populated
@@ -69,6 +64,11 @@ int tool_gui::step_rt() {
         return jcs::RET_ERROR;
     }
     return jcs::RET_OK;
+}
+
+// Called from the rt thread.
+void tool_gui::estop_rt() {
+    run_status_ = run_status::estop;
 }
 
 int tool_gui::step_shutdown_rt() {

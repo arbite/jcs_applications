@@ -57,6 +57,10 @@ int tool_manager::step_rt() {
     return storage_[active_tool_idx_]->step_rt();
 }
 
+void tool_manager::estop_rt() {
+    storage_[active_tool_idx_]->estop_rt();
+}
+
 int tool_manager::step_shutdown_rt() {
     return storage_[active_tool_idx_]->step_shutdown_rt();
 }

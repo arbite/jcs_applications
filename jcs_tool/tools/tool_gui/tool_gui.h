@@ -28,6 +28,7 @@ public:
 
     int step_startup_rt();
     int step_rt();
+    void estop_rt();
     int step_shutdown_rt();
     int step_parameter_startup();
     int step_parameter();
