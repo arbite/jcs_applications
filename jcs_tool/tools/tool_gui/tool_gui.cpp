@@ -46,9 +46,6 @@ int tool_gui::load_config(std::string tool_config) {
 
 
 int tool_gui::step_startup_rt() {
-    // if (host_ptr_ == nullptr) {
-    //     return jcs::RET_ERROR;
-    // }
     return jcs::RET_OK;
 }
 
@@ -66,7 +63,6 @@ int tool_gui::step_rt() {
     return jcs::RET_OK;
 }
 
-// Called from the rt thread.
 void tool_gui::estop_rt() {
     run_status_ = run_status::estop;
 }
@@ -152,7 +148,9 @@ int tool_gui::step_parameter_startup() {
 
     // Build the device store and startup
     device_tree_ = host_->external_info_tree_get();
-    build_store();
+    if (build_store() != jcs::RET_OK) {
+        return jcs::RET_ERROR;
+    }
 
     // Populate some nice helpers
     // Build combo box names lists
@@ -172,13 +170,14 @@ int tool_gui::step_parameter_startup() {
     return jcs::RET_OK;
 }
 
-void tool_gui::build_store() {
+int tool_gui::build_store() {
     for (int i=0; i<device_tree_->size(); i++) {
         gui_interface* gui_if = static_cast<gui_interface*>(this);
         // Add any devices to the store
         if (device_tree_->at(i).node_type == "dev_host") {
             store_.push_back(new gui_device_host(host_, gui_if, device_tree_->at(i).name));
-            host_ptr_ = static_cast<gui_device_host*>(store_[0]);
+            // Must be the entry we just pushed.
+            host_ptr_ = static_cast<gui_device_host*>(store_.back());
         }
         else if (device_tree_->at(i).node_type == "dev_joint_controller")                { store_.push_back(new gui_device_joint_controller(host_, gui_if, device_tree_->at(i).name)); }
         else if (device_tree_->at(i).node_type == "dev_motor_controller")                { store_.push_back(new gui_device_motor_controller(host_, gui_if, device_tree_->at(i).name)); }
@@ -206,6 +205,17 @@ void tool_gui::build_store() {
             else { }
         }
     }
+
+    // Check
+    if (store_.empty()) {
+        std::cout << "tool_gui: Device store is empty - no supported node types in the device tree\n";
+        return jcs::RET_ERROR;
+    }
+    if (host_ptr_ == nullptr) {
+        std::cout << "tool_gui: No dev_host in the device tree\n";
+        return jcs::RET_ERROR;
+    }
+    return jcs::RET_OK;
 }
 
 int tool_gui::step_parameter() {

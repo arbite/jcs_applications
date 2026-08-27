@@ -52,7 +52,7 @@ private:
     int render_display();
     int render_top_display(ImVec2* w_pos, ImVec2* w_size);
 
-    void build_store();
+    int build_store();
 
     std::vector<jcs::jcs_device>* device_tree_;
     std::vector<gui_device_base*> store_;
@@ -69,7 +69,9 @@ private:
     std::vector<std::string> u8_output_signal_names_;
 
     // Device selection helpers
-    int device_select_idx_;
+    // Written by the gui thread in the device selector, read by the rt thread
+    // in step_rt(). Worst case rt steps a different entry for one tick.
+    std::atomic<int> device_select_idx_;
 
     enum class run_status {
         running,
