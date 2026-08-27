@@ -150,7 +150,7 @@ int gui_parameter::render() {
     }
 
     ImGui::Text("Calibration Parameters");
-    ImGui::Text("Warning: Starting calibration will erase ALL caibration values");
+    ImGui::Text("Warning: Starting calibration will erase ALL calibration values");
     ImGui::Text("Warning: All calibration values must be written in the open session");
     ImGui::Text("- Unlock three times to unlock calibration");
     ImGui::Text("- Start to erase the calibration values and begin the calibration session");
