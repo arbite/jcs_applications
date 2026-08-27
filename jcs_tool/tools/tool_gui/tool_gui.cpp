@@ -71,6 +71,14 @@ void tool_gui::estop_rt() {
     run_status_ = run_status::estop;
 }
 
+// An estop must survive until reset clears it on the host.
+void tool_gui::run_status_set(run_status s) {
+    if (run_status_ == run_status::estop && s != run_status::estop) {
+        return;
+    }
+    run_status_ = s;
+}
+
 int tool_gui::step_shutdown_rt() {
     return jcs::RET_OK;
 }
@@ -282,28 +290,24 @@ int tool_gui::render_display() {
 
     // Control buttons
     if (ImGui::Button("START")) {
-        if (host_->ready_devices() == jcs::RET_OK) {
-            if (host_->start(run_start_script_) == jcs::RET_OK) {
-                run_status_ = run_status::running;
-            }
+        if (start() != jcs::RET_OK) {
+            // Note run_status_set: a failed start must not clear an estop
+            run_status_set(run_status::stopped);
         }
     }
     ImGui::SameLine();
     if (ImGui::Button("STOP")) {
-        run_status_ = run_status::stopped;
-        if (host_->stop(run_stop_script_) == jcs::RET_OK) {
-            host_->dev_jc_ethercat_timing_print();
-            host_->process_timing_print();
-        }
+        stop();
     }
     ImGui::SameLine();
     if (ImGui::Button("RESET")) {
-        run_status_ = run_status::stopped;
-        host_->reset();
+        reset();
     }
     ImGui::SameLine();
     if (ImGui::Button("ESTOP")) {
-        run_status_ = run_status::stopped;
+        // We are estopping, not stopping. The rt loop will set this too once
+        // it sees the latch, but do not show "Stopped" in the meantime.
+        run_status_ = run_status::estop;
         host_->trigger_estop();
     }
     ImGui::SameLine();
@@ -316,7 +320,7 @@ int tool_gui::render_display() {
     }
     ImGui::SameLine();
     if (ImGui::Button("SHUTDOWN")) {
-        run_status_ = run_status::stopped;
+        run_status_set(run_status::stopped);
         host_->stop(run_stop_script_);
         host_->shutdown();
         // Signal to shutdown
@@ -333,7 +337,7 @@ int tool_gui::render_display() {
         }
     }
 
-    switch (run_status_) {
+    switch (run_status_.load()) {
         default:
         case run_status::stopped:
             ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.0f, 1.0f), "Stopped");
@@ -392,17 +396,23 @@ int tool_gui::render_display() {
 
 
 int tool_gui::start() {
+    if (run_status_ == run_status::estop) {
+        return jcs::RET_ERROR;
+    }
+    // Note: must not attempt the start if ready_devices failed - the devices
+    // have not been configured, so running the startup lists against them is
+    // not safe.
     if (host_->ready_devices() != jcs::RET_OK) {
         return jcs::RET_ERROR;
     }
     if (host_->start(run_start_script_) != jcs::RET_OK) {
         return jcs::RET_ERROR;
     }
-    run_status_ = run_status::running;
+    run_status_set(run_status::running);
     return jcs::RET_OK;
 }
 int tool_gui::stop() {
-    run_status_ = run_status::stopped;
+    run_status_set(run_status::stopped);
     if (host_->stop(run_stop_script_) != jcs::RET_OK) {
         return jcs::RET_ERROR;
     }
@@ -419,6 +429,11 @@ int tool_gui::reset() {
     if (host_->reset() != jcs::RET_OK) {
         return jcs::RET_ERROR;
     }
+    // Direct assign, not run_status_set: reset is where the estop is cleared on
+    // the host, so it is where the estop status is cleared here too. Without
+    // this the gui stays latched in estop with no way out but the RESET button,
+    // and start() refuses for ever.
+    run_status_ = run_status::stopped;
     return jcs::RET_OK;
 }
 std::vector<std::string>* tool_gui::get_f32_input_signal_names() {

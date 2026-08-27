@@ -14,6 +14,7 @@
 #include "imgui_impl_opengl2.h"
 
 #include <chrono>
+#include <atomic>
 
 #include "gui_device_base.h"
 #include "gui_device_host.h"
@@ -75,7 +76,14 @@ private:
         stopped,
         estop
     };
-    run_status run_status_;
+    // Written by BOTH threads: the rt thread via estop_rt(), and the gui
+    // thread from the control buttons. Atomic so the estop write cannot be
+    // torn or reordered away.
+    std::atomic<run_status> run_status_;
+
+    // Set the run status, but never overwrite a latched estop. Only RESET
+    // clears an estop, because only RESET clears it on the host.
+    void run_status_set(run_status s);
 
     bool run_start_script_;
     bool run_stop_script_;
